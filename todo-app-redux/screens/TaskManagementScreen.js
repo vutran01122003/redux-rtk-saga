@@ -3,13 +3,28 @@ import { useState, useEffect } from "react";
 import TaskItemComponent from "../components/TaskItemComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { getTasks } from "../redux/action";
+import { getDataApi } from "../utils/fetchData";
+import GLOBALTYPES from "../redux/globalTypes";
 
 function TaskManagementScreen({ navigation }) {
     const todoList = useSelector((state) => state?.todoList);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(getTasks());
+        // dispatch(getTasks());
+
+        getDataApi("/tasks")
+            .then((res) => {
+                dispatch({
+                    type: GLOBALTYPES.TODO.GET_TASKS,
+                    payload: {
+                        tasks: res.data
+                    }
+                });
+            })
+            .catch((error) => {
+                Alert.alert("Lấy dữ liệu tasks thất bại");
+            });
     }, []);
 
     return (

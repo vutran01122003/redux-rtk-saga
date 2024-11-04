@@ -2,6 +2,8 @@ import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } fro
 import { useState } from "react";
 import { addTask, updateTask } from "../redux/action";
 import { useDispatch } from "react-redux";
+import GLOBALTYPES from "../redux/globalTypes";
+import { postDataApi, putDataApi } from "../utils/fetchData";
 
 export default function TaskScreen({ route, navigation }) {
     const taskData = route.params?.taskData;
@@ -10,9 +12,37 @@ export default function TaskScreen({ route, navigation }) {
 
     const onFinish = async () => {
         if (taskData) {
-            dispatch(updateTask({ taskContent, id: taskData.taskId }));
+            // dispatch(updateTask({ taskContent, id: taskData.taskId }));
+            const id = taskData.taskId;
+            putDataApi(`/tasks/${id}`, { id, content: taskContent })
+                .then(() => {
+                    dispatch({
+                        type: GLOBALTYPES.TODO.UPADTE_TASK,
+                        payload: {
+                            task: {
+                                id,
+                                content: taskContent
+                            }
+                        }
+                    });
+                })
+                .catch(() => {
+                    Alert.alert("Cập nhật thất bại");
+                });
         } else {
-            dispatch(addTask({ taskContent }));
+            // dispatch(addTask({ taskContent }));
+            postDataApi(`/tasks`, { content: taskContent })
+                .then((res) => {
+                    dispatch({
+                        type: GLOBALTYPES.TODO.ADD_TASK,
+                        payload: {
+                            task: res.data
+                        }
+                    });
+                })
+                .catch(() => {
+                    Alert.alert("Thêm task thất bại");
+                });
         }
     };
 

@@ -1,12 +1,26 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useDispatch } from "react-redux";
 import { deleteTasks } from "../redux/action";
+import { deleteDataApi } from "../utils/fetchData";
+import GLOBALTYPES from "../redux/globalTypes";
 
 function TaskItemComponent({ taskId, content, navigation }) {
     const dispatch = useDispatch();
 
     const ondeleteTask = async () => {
-        dispatch(deleteTasks({ taskId }));
+        // dispatch(deleteTasks({ taskId }));
+        deleteDataApi(`/tasks/${taskId}`)
+            .then(() => {
+                dispatch({
+                    type: GLOBALTYPES.TODO.REMOVE_TASK,
+                    payload: {
+                        id: taskId
+                    }
+                });
+            })
+            .catch((e) => {
+                Alert.alert("Xóa thất bại");
+            });
     };
 
     return (
